@@ -27,7 +27,11 @@ async def delete_film_instruction(message: types.Message):
                            reply_markup=get_back_admin_keyboard())
 
 
-async def back_main_menu(message: types.Message):
+async def back_main_menu(message: types.Message, state: FSMContext):
+    if state is None:
+        await message.answer('🏠', reply_markup=get_admin_keyboard())
+        return
+    await state.finish()
     await message.answer('🏠', reply_markup=get_admin_keyboard())
 
 
@@ -159,7 +163,7 @@ async def load_url(message: types.Message, state: FSMContext):
 
 def register_admin_handlers(disp: Dispatcher):
     disp.register_message_handler(delete_film_instruction, Text("Удалить фильм🗑"))
-    disp.register_message_handler(back_main_menu, Text("Главное меню"))
+    disp.register_message_handler(back_main_menu, Text("Главное меню"), state='*')
     disp.register_message_handler(find_film_number, Text("Номер фильма🔎"))
     disp.register_message_handler(cancel_search, Text("Отмена поиска"), state='*')
     disp.register_message_handler(find_film_id, state=FindFilmStateGroup.title)
@@ -176,5 +180,4 @@ def register_admin_handlers(disp: Dispatcher):
     disp.register_message_handler(add_film, Text("Добавить фильм🎥"))
     disp.register_message_handler(add_title, state=FilmsStateGroup.title)
     disp.register_message_handler(load_photo, state=FilmsStateGroup.photo)
-    # disp.register_message_handler(invalid_photo, lambda message: not message.photo, state=FilmsStateGroup.photo)
     disp.register_message_handler(load_url, state=FilmsStateGroup.url)
